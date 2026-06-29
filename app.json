@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "FitFuel",
+    "slug": "fitfuel",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.fitfuel"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0F2F2B"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
