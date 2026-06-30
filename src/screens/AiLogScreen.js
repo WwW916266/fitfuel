@@ -47,16 +47,20 @@ export default function AiLogScreen() {
 
     try {
       const result = await processUserLogWithCodex(trimmed);
-      addMealLog(result);
+      if (result.is_valid_log) {
+        addMealLog(result);
+      }
 
-      const itemNames = result.analyzed_meal.identified_items.map((item) => item.name).join(", ");
-      const responseText = `${itemNames}: ${result.analyzed_meal.total_meal_calories} kcal logged. ${result.coach_feedback}`;
+      const itemNames = result.parsed_items.map((item) => item.name).join(", ");
+      const responseText = result.is_valid_log
+        ? `${itemNames}: ${result.macro_updates.calories} kcal logged. ${result.coach_response}`
+        : result.coach_response;
 
       setMessages((value) => [
         ...value,
         { id: `${Date.now()}-assistant`, role: "assistant", text: responseText }
       ]);
-      Alert.alert("Coach feedback", result.coach_feedback);
+      Alert.alert(result.is_valid_log ? "Coach feedback" : "Try another entry", result.coach_response);
     } catch (error) {
       setMessages((value) => [
         ...value,

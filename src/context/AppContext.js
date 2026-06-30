@@ -11,8 +11,13 @@ export function AppProvider({ children }) {
   const [logs, setLogs] = useState([]);
 
   const addMealLog = (mealData) => {
-    const items = mealData?.analyzed_meal?.identified_items || [];
+    if (mealData?.is_valid_log === false || mealData?.log_type === "error") {
+      return null;
+    }
+
+    const items = mealData?.parsed_items || mealData?.analyzed_meal?.identified_items || [];
     const totalCalories =
+      mealData?.macro_updates?.calories ||
       mealData?.analyzed_meal?.total_meal_calories ||
       items.reduce((sum, item) => sum + Number(item.calories || 0), 0);
 
@@ -28,7 +33,7 @@ export function AppProvider({ children }) {
     const logEntry = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       createdAt: new Date().toISOString(),
-      category: mealData?.category || "diet",
+      category: mealData?.log_type || mealData?.category || "diet",
       title: items.map((item) => item.name).join(", ") || "Meal log",
       calories: Math.round(totalCalories),
       macros: {
