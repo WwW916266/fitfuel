@@ -34,21 +34,21 @@ export default function DashboardScreen() {
             value={macros.protein}
             goal={140}
             color={theme.colors.emeraldSoft}
-            tint="rgba(129, 178, 154, 0.06)"
+            tint="rgba(143, 185, 150, 0.08)"
           />
           <MacroCard
             label="Carbs"
             value={macros.carbs}
             goal={230}
             color={theme.colors.amber}
-            tint="rgba(244, 162, 97, 0.06)"
+            tint="rgba(185, 168, 106, 0.08)"
           />
           <MacroCard
             label="Fat"
             value={macros.fat}
             goal={70}
             color={theme.colors.coral}
-            tint="rgba(224, 122, 95, 0.06)"
+            tint="rgba(201, 143, 116, 0.08)"
           />
         </View>
 
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 24,
-    backgroundColor: "rgba(231, 111, 81, 0.1)"
+    backgroundColor: "rgba(94, 140, 97, 0.1)"
   },
   heroPanel: {
     marginTop: 6,
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 22,
-    backgroundColor: "rgba(244, 162, 97, 0.1)"
+    backgroundColor: "rgba(185, 168, 106, 0.12)"
   },
   logBody: {
     flex: 1,
