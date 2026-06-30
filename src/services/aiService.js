@@ -134,6 +134,65 @@ const nonFoodTerms = [
   "travel"
 ];
 
+const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
+const GEMINI_MODEL = "gemini-3.5-flash";
+
+const fitFuelLogSchema = {
+  type: "OBJECT",
+  properties: {
+    is_valid_log: { type: "BOOLEAN" },
+    log_type: { type: "STRING", enum: ["diet", "error"] },
+    macro_updates: {
+      type: "OBJECT",
+      properties: {
+        calories: { type: "INTEGER" },
+        protein_g: { type: "INTEGER" },
+        carbs_g: { type: "INTEGER" },
+        fat_g: { type: "INTEGER" }
+      },
+      required: ["calories", "protein_g", "carbs_g", "fat_g"]
+    },
+    parsed_items: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          name: { type: "STRING" },
+          quantity_description: { type: "STRING" },
+          estimated_weight_g: { type: "INTEGER" },
+          calories: { type: "INTEGER" },
+          protein: { type: "INTEGER" },
+          carbs: { type: "INTEGER" },
+          fat: { type: "INTEGER" }
+        },
+        required: ["name", "quantity_description", "estimated_weight_g", "calories", "protein", "carbs", "fat"]
+      }
+    },
+    recipe_recommendation_vector: {
+      type: "OBJECT",
+      properties: {
+        suggested_search_keyword: { type: "STRING" },
+        required_tag: { type: "STRING", enum: ["high-protein", "low-carb", "balanced", "none"] }
+      },
+      required: ["suggested_search_keyword", "required_tag"]
+    },
+    coach_response: { type: "STRING" }
+  },
+  required: [
+    "is_valid_log",
+    "log_type",
+    "macro_updates",
+    "parsed_items",
+    "recipe_recommendation_vector",
+    "coach_response"
+  ]
+};
+
+const geminiSystemInstruction =
+  "You are the FitFuel Diary nutrition scientist. Return only valid JSON matching the provided schema. " +
+  "Estimate realistic weights, calories, protein, carbs, and fat. If input is unrelated to food, drink, health, " +
+  "or exercise, return an error log with zero macro updates.";
+
 function containsFoodSignal(text) {
   const normalized = text.toLowerCase();
   return foodProfiles.some((profile) => profile.match.some((term) => normalized.includes(term)));
@@ -327,7 +386,122 @@ function invalidResponse() {
   };
 }
 
-export async function processUserLogWithCodex(userInput) {
+function normalizeGeminiLog(log) {
+  const isValid = Boolean(log?.is_valid_log) && log?.log_type === "diet";
+  const items = Array.isArray(log?.parsed_items) ? log.parsed_items : [];
+  const macros = log?.macro_updates || {};
+
+  if (!isValid) {
+    return invalidResponse();
+  }
+
+  const normalizedItems = items.map((item) => ({
+    name: String(item?.name || "Food item"),
+    quantity_description: String(item?.quantity_description || "estimated serving"),
+    estimated_weight_g: Math.max(0, Math.round(Number(item?.estimated_weight_g || 0))),
+    calories: Math.max(0, Math.round(Number(item?.calories || 0))),
+    protein: Math.max(0, Math.round(Number(item?.protein || 0))),
+    carbs: Math.max(0, Math.round(Number(item?.carbs || 0))),
+    fat: Math.max(0, Math.round(Number(item?.fat || 0)))
+  }));
+
+  const summed = sumMacros(normalizedItems);
+
+  return {
+    is_valid_log: normalizedItems.length > 0,
+    log_type: normalizedItems.length > 0 ? "diet" : "error",
+    macro_updates: {
+      calories: Math.max(0, Math.round(Number(macros.calories || summed.calories))),
+      protein_g: Math.max(0, Math.round(Number(macros.protein_g || summed.protein_g))),
+      carbs_g: Math.max(0, Math.round(Number(macros.carbs_g || summed.carbs_g))),
+      fat_g: Math.max(0, Math.round(Number(macros.fat_g || summed.fat_g)))
+    },
+    parsed_items: normalizedItems,
+    recipe_recommendation_vector: {
+      suggested_search_keyword: String(
+        log?.recipe_recommendation_vector?.suggested_search_keyword ||
+          buildRecipeVector(summed).suggested_search_keyword
+      ),
+      required_tag: ["high-protein", "low-carb", "balanced", "none"].includes(
+        log?.recipe_recommendation_vector?.required_tag
+      )
+        ? log.recipe_recommendation_vector.required_tag
+        : buildRecipeVector(summed).required_tag
+    },
+    coach_response: String(log?.coach_response || buildCoachResponse(normalizedItems, summed))
+  };
+}
+
+function getGeminiOutputText(payload) {
+  if (typeof payload?.output_text === "string") {
+    return payload.output_text;
+  }
+
+  if (typeof payload?.outputText === "string") {
+    return payload.outputText;
+  }
+
+  if (typeof payload?.text === "string") {
+    return payload.text;
+  }
+
+  const stepText = payload?.steps
+    ?.flatMap((step) => step?.output || step?.outputs || step?.content || [])
+    ?.map((part) => part?.text)
+    ?.filter(Boolean)
+    ?.join("");
+
+  if (stepText) {
+    return stepText;
+  }
+
+  const legacyText = payload?.candidates?.[0]?.content?.parts?.map((part) => part.text).join("");
+  return legacyText || "";
+}
+
+async function processWithGemini(userInput) {
+  const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+  if (!apiKey) {
+    return null;
+  }
+
+  const response = await fetch(`${GEMINI_API_BASE_URL}/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [{ text: geminiSystemInstruction }]
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: `Analyze this FitFuel diary entry: ${userInput}` }]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.2,
+        response_mime_type: "application/json",
+        response_schema: fitFuelLogSchema
+      }
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Gemini request failed: ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const outputText = getGeminiOutputText(payload);
+  if (!outputText) {
+    throw new Error("Gemini returned an empty response");
+  }
+
+  return normalizeGeminiLog(JSON.parse(outputText));
+}
+
+async function processUserLogLocally(userInput) {
   const safeInput = String(userInput || "").trim();
 
   await new Promise((resolve) => setTimeout(resolve, 550));
@@ -351,4 +525,19 @@ export async function processUserLogWithCodex(userInput) {
     recipe_recommendation_vector: buildRecipeVector(macroUpdates),
     coach_response: buildCoachResponse(parsedItems, macroUpdates)
   };
+}
+
+export async function processUserLogWithCodex(userInput) {
+  const safeInput = String(userInput || "").trim();
+
+  try {
+    const geminiResult = await processWithGemini(safeInput);
+    if (geminiResult) {
+      return geminiResult;
+    }
+  } catch (error) {
+    console.warn("Gemini unavailable, using local parser fallback.", error);
+  }
+
+  return processUserLogLocally(safeInput);
 }

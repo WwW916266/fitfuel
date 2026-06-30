@@ -46,3 +46,23 @@ npm start -- --clear
 ```
 
 If your phone cannot open the project in Expo Go, use the Xcode simulator path above.
+
+## Gemini AI Setup
+
+1. Create a Gemini API key in Google AI Studio.
+2. Create a file named `.env` in the project root.
+3. Add your key:
+
+   ```sh
+   EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+
+4. Restart Expo:
+
+   ```sh
+   npm start -- --clear
+   ```
+
+The app will call Gemini for AI meal parsing when the key exists. If the key is missing or Gemini is unavailable, FitFuel automatically falls back to the local nutrition parser.
+
+For production, move the Gemini API call to your own backend so the API key is not exposed inside the mobile app bundle.
