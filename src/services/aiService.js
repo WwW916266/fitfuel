@@ -118,6 +118,56 @@ const foodProfiles = [
     protein: 46,
     carbs: 0,
     fat: 5
+  },
+  {
+    match: ["nasi lemak"],
+    name: "Nasi Lemak",
+    baseQuantity: "1 plate",
+    baseWeightG: 420,
+    calories: 690,
+    protein: 24,
+    carbs: 82,
+    fat: 30
+  },
+  {
+    match: ["laksa"],
+    name: "Laksa",
+    baseQuantity: "1 bowl",
+    baseWeightG: 520,
+    calories: 610,
+    protein: 23,
+    carbs: 68,
+    fat: 27
+  },
+  {
+    match: ["sushi"],
+    name: "Sushi",
+    baseQuantity: "6 pieces",
+    baseWeightG: 180,
+    calories: 300,
+    protein: 14,
+    carbs: 48,
+    fat: 6
+  },
+  {
+    match: ["sandwich"],
+    name: "Sandwich",
+    baseQuantity: "1 sandwich",
+    baseWeightG: 220,
+    calories: 420,
+    protein: 22,
+    carbs: 46,
+    fat: 16
+  },
+  {
+    match: ["coffee", "latte", "milk tea", "bubble tea"],
+    name: "Sweetened Cafe Drink",
+    baseQuantity: "1 cup",
+    baseWeightG: 360,
+    calories: 240,
+    protein: 7,
+    carbs: 36,
+    fat: 7
   }
 ];
 
@@ -134,8 +184,29 @@ const nonFoodTerms = [
   "travel"
 ];
 
+const foodIntentTerms = [
+  "ate",
+  "eat",
+  "had",
+  "having",
+  "breakfast",
+  "lunch",
+  "dinner",
+  "supper",
+  "snack",
+  "meal",
+  "drink",
+  "drank",
+  "bowl",
+  "plate",
+  "serving",
+  "cup",
+  "piece",
+  "slice"
+];
+
 const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
-const GEMINI_MODEL = "gemini-3.5-flash";
+const GEMINI_MODEL = "gemini-1.5-flash";
 
 const fitFuelLogSchema = {
   type: "OBJECT",
@@ -205,6 +276,21 @@ function looksInvalid(text) {
   }
 
   return nonFoodTerms.some((term) => normalized.includes(term)) && !containsFoodSignal(normalized);
+}
+
+function hasFoodIntent(text) {
+  const normalized = text.toLowerCase();
+  return foodIntentTerms.some((term) => normalized.includes(term)) || containsFoodSignal(normalized);
+}
+
+function titleCase(text) {
+  return text
+    .replace(/[^a-zA-Z0-9\s]/g, " ")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 5)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 }
 
 function inferMultiplier(text, profile) {
@@ -309,6 +395,30 @@ function parseItems(userInput) {
   return items;
 }
 
+function buildGenericEstimate(userInput) {
+  const normalized = userInput.toLowerCase();
+  const isSmall = normalized.includes("small") || normalized.includes("snack") || normalized.includes("half");
+  const isLarge = normalized.includes("large") || normalized.includes("big") || normalized.includes("double");
+  const multiplier = isSmall ? 0.65 : isLarge ? 1.25 : 1;
+  const name = titleCase(
+    normalized
+      .replace(/\b(i|ate|eat|had|having|for|breakfast|lunch|dinner|supper|snack|meal|a|an|the)\b/g, "")
+      .trim()
+  );
+
+  return [
+    {
+      name: name || "Estimated Meal",
+      quantity_description: isSmall ? "small serving" : isLarge ? "large serving" : "1 estimated serving",
+      estimated_weight_g: Math.round(360 * multiplier),
+      calories: Math.round(520 * multiplier),
+      protein: Math.round(24 * multiplier),
+      carbs: Math.round(58 * multiplier),
+      fat: Math.round(18 * multiplier)
+    }
+  ];
+}
+
 function sumMacros(items) {
   return items.reduce(
     (total, item) => ({
@@ -382,7 +492,7 @@ function invalidResponse() {
       suggested_search_keyword: "",
       required_tag: "none"
     },
-    coach_response: "Please enter a meal, snack, drink, or food image description so I can calculate nutrition values for your diary."
+    coach_response: "I could not identify a food from that entry. Try a meal phrase like \"chicken rice\", \"two eggs\", or \"I had laksa for lunch\"."
   };
 }
 
@@ -511,19 +621,23 @@ async function processUserLogLocally(userInput) {
   }
 
   const parsedItems = parseItems(safeInput);
-  if (parsedItems.length === 0) {
+  if (parsedItems.length === 0 && !hasFoodIntent(safeInput)) {
     return invalidResponse();
   }
 
-  const macroUpdates = sumMacros(parsedItems);
+  const finalItems = parsedItems.length > 0 ? parsedItems : buildGenericEstimate(safeInput);
+  const macroUpdates = sumMacros(finalItems);
 
   return {
     is_valid_log: true,
     log_type: "diet",
     macro_updates: macroUpdates,
-    parsed_items: parsedItems,
+    parsed_items: finalItems,
     recipe_recommendation_vector: buildRecipeVector(macroUpdates),
-    coach_response: buildCoachResponse(parsedItems, macroUpdates)
+    coach_response:
+      parsedItems.length > 0
+        ? buildCoachResponse(finalItems, macroUpdates)
+        : `I estimated ${finalItems[0].name} as a typical mixed meal. You can add details like portion size or ingredients next time for a sharper macro estimate.`
   };
 }
 
