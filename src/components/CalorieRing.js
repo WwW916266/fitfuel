@@ -20,7 +20,7 @@ export default function CalorieRing({ currentIntake, dailyGoal }) {
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="rgba(4, 120, 87, 0.12)"
+          stroke={theme.colors.track}
           strokeWidth={strokeWidth}
           fill="transparent"
         />
@@ -28,7 +28,7 @@ export default function CalorieRing({ currentIntake, dailyGoal }) {
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={currentIntake > dailyGoal ? theme.colors.coral : theme.colors.emerald}
+          stroke={theme.colors.emerald}
           strokeWidth={strokeWidth}
           fill="transparent"
           strokeLinecap="round"
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   kicker: {
     marginTop: 4,
     fontSize: 10,
-    color: "#8A9A94",
+    color: theme.colors.clay,
     fontWeight: "600",
     letterSpacing: 1.5,
     textTransform: "uppercase"

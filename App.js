@@ -35,7 +35,7 @@ export default function App() {
                   onPress={() => setActiveTab(tab.id)}
                   style={styles.tabItem}
                 >
-                  <Icon size={22} color={isActive ? theme.colors.emerald : "#667085"} strokeWidth={2.3} />
+                  <Icon size={22} color={isActive ? theme.colors.emerald : theme.colors.warmSlate} strokeWidth={2.3} />
                   <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tab.label}</Text>
                 </TouchableOpacity>
               );
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 11,
     lineHeight: 14,
-    color: "#667085",
+    color: theme.colors.warmSlate,
     fontWeight: "500"
   },
   tabLabelActive: {

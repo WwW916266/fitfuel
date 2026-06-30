@@ -34,21 +34,21 @@ export default function DashboardScreen() {
             value={macros.protein}
             goal={140}
             color={theme.colors.emeraldSoft}
-            tint="rgba(4, 120, 87, 0.02)"
+            tint="rgba(129, 178, 154, 0.06)"
           />
           <MacroCard
             label="Carbs"
             value={macros.carbs}
             goal={230}
             color={theme.colors.amber}
-            tint="rgba(245, 158, 11, 0.02)"
+            tint="rgba(244, 162, 97, 0.06)"
           />
           <MacroCard
             label="Fat"
             value={macros.fat}
             goal={70}
             color={theme.colors.coral}
-            tint="rgba(248, 113, 113, 0.02)"
+            tint="rgba(224, 122, 95, 0.06)"
           />
         </View>
 
@@ -66,7 +66,7 @@ export default function DashboardScreen() {
             latestLogs.map((log) => (
               <View key={log.id} style={styles.logRow}>
                 <View style={styles.logIcon}>
-                  <Soup size={20} color={theme.colors.emerald} strokeWidth={2.2} />
+                  <Soup size={20} color={theme.colors.amber} strokeWidth={2.2} />
                 </View>
                 <View style={styles.logBody}>
                   <Text style={styles.logTitle} numberOfLines={1}>
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 24,
-    backgroundColor: "rgba(4, 120, 87, 0.1)"
+    backgroundColor: "rgba(231, 111, 81, 0.1)"
   },
   heroPanel: {
     marginTop: 6,
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 22,
-    backgroundColor: "rgba(4, 120, 87, 0.09)"
+    backgroundColor: "rgba(244, 162, 97, 0.1)"
   },
   logBody: {
     flex: 1,
