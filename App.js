@@ -33,9 +33,9 @@ export default function App() {
                   key={tab.id}
                   activeOpacity={0.7}
                   onPress={() => setActiveTab(tab.id)}
-                  style={[styles.tabItem, isActive && styles.tabItemActive]}
+                  style={styles.tabItem}
                 >
-                  <Icon size={22} color={isActive ? "#FFFFFF" : "#667085"} strokeWidth={2.3} />
+                  <Icon size={22} color={isActive ? theme.colors.emerald : "#667085"} strokeWidth={2.3} />
                   <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tab.label}</Text>
                 </TouchableOpacity>
               );
@@ -58,36 +58,34 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background
   },
   tabBar: {
-    width: "92%",
-    maxWidth: theme.layout.maxWidth - 28,
+    width: "100%",
+    maxWidth: theme.layout.maxWidth,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     alignSelf: "center",
-    marginBottom: 12,
-    padding: 8,
-    borderRadius: 24,
-    backgroundColor: theme.colors.card,
-    ...theme.shadow
+    paddingTop: 8,
+    paddingBottom: 10,
+    paddingHorizontal: 18,
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0,0,0,0.05)"
   },
   tabItem: {
     flex: 1,
-    minHeight: 58,
+    minHeight: 48,
     alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 18
-  },
-  tabItemActive: {
-    backgroundColor: theme.colors.emerald
+    justifyContent: "center"
   },
   tabLabel: {
     marginTop: 4,
     fontSize: 11,
     lineHeight: 14,
     color: "#667085",
-    fontWeight: "700"
+    fontWeight: "500"
   },
   tabLabelActive: {
-    color: "#FFFFFF"
+    color: theme.colors.emerald,
+    fontWeight: "700"
   }
 });

@@ -2,11 +2,11 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { theme } from "../theme";
 
-export default function MacroCard({ label, value, goal, color }) {
+export default function MacroCard({ label, value, goal, color, tint }) {
   const progress = Math.min(1, Math.max(0, value / Math.max(goal, 1)));
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: tint || theme.colors.card }]}>
       <View style={styles.row}>
         <Text style={styles.label}>{label}</Text>
         <Text style={styles.value}>{value}g</Text>
@@ -23,9 +23,8 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     minWidth: "30%",
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: theme.colors.card,
+    padding: 15,
+    borderRadius: 18,
     ...theme.shadow
   },
   row: {
@@ -34,9 +33,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   label: {
-    fontSize: 13,
+    fontSize: 10,
     color: theme.colors.muted,
-    fontWeight: "800"
+    fontWeight: "600",
+    letterSpacing: 1.5,
+    textTransform: "uppercase"
   },
   value: {
     fontSize: 17,
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
     fontWeight: "900"
   },
   track: {
-    height: 6,
+    height: 4,
     marginTop: 14,
     borderRadius: 999,
     overflow: "hidden",
@@ -55,9 +56,9 @@ const styles = StyleSheet.create({
     borderRadius: 999
   },
   goal: {
-    marginTop: 9,
+    marginTop: 10,
     fontSize: 11,
     color: "#98A2B3",
-    fontWeight: "700"
+    fontWeight: "400"
   }
 });

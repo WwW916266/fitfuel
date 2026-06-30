@@ -4,7 +4,7 @@ import Svg, { Circle } from "react-native-svg";
 import { theme } from "../theme";
 
 const size = 220;
-const strokeWidth = 12;
+const strokeWidth = 11;
 const radius = (size - strokeWidth) / 2;
 const circumference = 2 * Math.PI * radius;
 
@@ -40,8 +40,8 @@ export default function CalorieRing({ currentIntake, dailyGoal }) {
       </Svg>
       <View style={styles.centerText}>
         <Text style={styles.remaining}>{remaining}</Text>
-        <Text style={styles.kicker}>Kcal remaining</Text>
-        <Text style={styles.subcopy}>Goal {dailyGoal}</Text>
+        <Text style={styles.kicker}>KCAL REMAINING</Text>
+        <Text style={styles.subcopy}>Goal {dailyGoal.toLocaleString()}</Text>
       </View>
     </View>
   );
@@ -54,8 +54,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 18,
-    marginBottom: 18
+    marginTop: 4,
+    marginBottom: 4
   },
   centerText: {
     position: "absolute",
@@ -63,23 +63,23 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   kicker: {
-    marginTop: 6,
-    fontSize: 11,
-    color: theme.colors.muted,
-    fontWeight: "900",
+    marginTop: 4,
+    fontSize: 10,
+    color: "#8A9A94",
+    fontWeight: "600",
     letterSpacing: 1.5,
     textTransform: "uppercase"
   },
   remaining: {
-    fontSize: 54,
-    lineHeight: 58,
-    color: theme.colors.ink,
+    fontSize: 56,
+    lineHeight: 60,
+    color: "#1F2937",
     fontWeight: "900"
   },
   subcopy: {
-    marginTop: 6,
+    marginTop: 7,
     fontSize: 13,
     color: theme.colors.muted,
-    fontWeight: "700"
+    fontWeight: "400"
   }
 });
