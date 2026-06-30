@@ -13,6 +13,7 @@ import {
 import { Camera, Send, Sparkles } from "lucide-react-native";
 import { useAppContext } from "../context/AppContext";
 import { processUserLogWithCodex } from "../services/aiService";
+import { theme } from "../theme";
 
 const initialMessages = [
   {
@@ -82,44 +83,59 @@ export default function AiLogScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={10}
     >
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.eyebrow}>Codex nutrition brain</Text>
-          <Text style={styles.title}>AI Log</Text>
+      <View style={styles.inner}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.eyebrow}>Codex nutrition brain</Text>
+            <Text style={styles.title}>AI Log</Text>
+          </View>
+          <View style={styles.headerIcon}>
+            <Sparkles size={22} color={theme.colors.emerald} />
+          </View>
         </View>
-        <View style={styles.headerIcon}>
-          <Sparkles size={22} color="#10A37F" />
-        </View>
+
+        <ScrollView
+          ref={scrollRef}
+          style={styles.chatList}
+          contentContainerStyle={styles.chatContent}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={scrollToBottom}
+        >
+          {messages.map((message) =>
+            message.role === "user" ? (
+              <View key={message.id} style={[styles.messageRow, styles.userRow]}>
+                <View style={[styles.bubble, styles.userBubble]}>
+                  <Text style={[styles.bubbleText, styles.userBubbleText]}>{message.text}</Text>
+                </View>
+              </View>
+            ) : (
+              <View key={message.id} style={styles.messageRow}>
+                <View style={styles.aiAvatar}>
+                  <Sparkles size={16} color={theme.colors.emerald} />
+                </View>
+                <View style={[styles.bubble, styles.assistantBubble]}>
+                  <Text style={styles.bubbleText}>{message.text}</Text>
+                </View>
+              </View>
+            )
+          )}
+
+          {isThinking ? (
+            <View style={styles.messageRow}>
+              <View style={styles.aiAvatar}>
+                <Sparkles size={16} color={theme.colors.emerald} />
+              </View>
+              <View style={[styles.bubble, styles.assistantBubble, styles.thinkingBubble]}>
+                <Text style={styles.thinkingText}>AI is thinking...</Text>
+              </View>
+            </View>
+          ) : null}
+        </ScrollView>
       </View>
 
-      <ScrollView
-        ref={scrollRef}
-        style={styles.chatList}
-        contentContainerStyle={styles.chatContent}
-        showsVerticalScrollIndicator={false}
-        onContentSizeChange={scrollToBottom}
-      >
-        {messages.map((message) => (
-          <View
-            key={message.id}
-            style={[styles.bubble, message.role === "user" ? styles.userBubble : styles.assistantBubble]}
-          >
-            <Text style={[styles.bubbleText, message.role === "user" && styles.userBubbleText]}>
-              {message.text}
-            </Text>
-          </View>
-        ))}
-
-        {isThinking ? (
-          <View style={[styles.bubble, styles.assistantBubble, styles.thinkingBubble]}>
-            <Text style={styles.thinkingText}>AI is thinking...</Text>
-          </View>
-        ) : null}
-      </ScrollView>
-
       <View style={styles.inputBar}>
-        <TouchableOpacity activeOpacity={0.8} style={styles.cameraButton}>
-          <Camera size={22} color="#123C35" />
+        <TouchableOpacity activeOpacity={0.7} style={styles.cameraButton}>
+          <Camera size={22} color={theme.colors.emerald} />
         </TouchableOpacity>
         <TextInput
           value={input}
@@ -130,7 +146,7 @@ export default function AiLogScreen() {
           multiline
           maxLength={180}
         />
-        <TouchableOpacity activeOpacity={0.85} style={styles.sendButton} onPress={submitLog}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.sendButton} onPress={submitLog}>
           <Send size={19} color="#FFFFFF" />
           <Text style={styles.sendText}>Send</Text>
         </TouchableOpacity>
@@ -142,7 +158,14 @@ export default function AiLogScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#F4F8F5"
+    width: "100%",
+    alignItems: "center",
+    backgroundColor: theme.colors.background
+  },
+  inner: {
+    flex: 1,
+    width: "100%",
+    maxWidth: theme.layout.maxWidth
   },
   header: {
     paddingHorizontal: 20,
@@ -153,7 +176,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   eyebrow: {
-    color: "#10A37F",
+    color: theme.colors.emerald,
     fontSize: 13,
     fontWeight: "900",
     textTransform: "uppercase"
@@ -162,7 +185,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 34,
     lineHeight: 40,
-    color: "#113A33",
+    color: theme.colors.ink,
     fontWeight: "900"
   },
   headerIcon: {
@@ -170,8 +193,8 @@ const styles = StyleSheet.create({
     height: 46,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 8,
-    backgroundColor: "#E4F6EF"
+    borderRadius: 24,
+    backgroundColor: "rgba(4, 120, 87, 0.1)"
   },
   chatList: {
     flex: 1
@@ -181,27 +204,44 @@ const styles = StyleSheet.create({
     paddingBottom: 18,
     gap: 10
   },
-  bubble: {
-    maxWidth: "82%",
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 8
+  messageRow: {
+    maxWidth: "92%",
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 9
   },
-  userBubble: {
+  userRow: {
     alignSelf: "flex-end",
-    backgroundColor: "#10A37F"
+    justifyContent: "flex-end"
   },
-  assistantBubble: {
-    alignSelf: "flex-start",
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#173A33",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
+  aiAvatar: {
+    width: 30,
+    height: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 15,
+    backgroundColor: "#ECFDF5",
+    shadowColor: "#047857",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
     elevation: 3
   },
+  bubble: {
+    maxWidth: "100%",
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderRadius: 22
+  },
+  userBubble: {
+    backgroundColor: theme.colors.slate
+  },
+  assistantBubble: {
+    backgroundColor: theme.colors.card,
+    ...theme.shadow
+  },
   bubbleText: {
-    color: "#173D36",
+    color: theme.colors.ink,
     fontSize: 15,
     lineHeight: 21,
     fontWeight: "700"
@@ -210,35 +250,34 @@ const styles = StyleSheet.create({
     color: "#FFFFFF"
   },
   thinkingBubble: {
-    backgroundColor: "#EAF5F0"
+    backgroundColor: "#ECFDF5"
   },
   thinkingText: {
-    color: "#5A756C",
+    color: theme.colors.emerald,
     fontSize: 14,
     fontWeight: "800"
   },
   inputBar: {
+    width: "92%",
+    maxWidth: theme.layout.maxWidth - 28,
     flexDirection: "row",
     alignItems: "flex-end",
     gap: 10,
-    marginHorizontal: 14,
+    alignSelf: "center",
     marginBottom: 86,
     padding: 10,
     borderRadius: 24,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#143D36",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 22,
-    elevation: 10
+    backgroundColor: theme.colors.card,
+    ...theme.shadow
   },
   cameraButton: {
     width: 46,
     height: 46,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 18,
-    backgroundColor: "#EAF5F0"
+    borderRadius: 23,
+    backgroundColor: "#ECFDF5",
+    ...theme.shadow
   },
   input: {
     flex: 1,
@@ -246,7 +285,7 @@ const styles = StyleSheet.create({
     minHeight: 46,
     paddingTop: 12,
     paddingHorizontal: 4,
-    color: "#123C35",
+    color: theme.colors.ink,
     fontSize: 15,
     lineHeight: 20,
     fontWeight: "700"
@@ -258,8 +297,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 6,
     paddingHorizontal: 14,
-    borderRadius: 18,
-    backgroundColor: "#10A37F"
+    borderRadius: 24,
+    backgroundColor: theme.colors.emerald,
+    ...theme.shadow
   },
   sendText: {
     color: "#FFFFFF",

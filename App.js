@@ -6,6 +6,7 @@ import DashboardScreen from "./src/screens/DashboardScreen";
 import AiLogScreen from "./src/screens/AiLogScreen";
 import RecipesScreen from "./src/screens/RecipesScreen";
 import SettingsScreen from "./src/screens/SettingsScreen";
+import { theme } from "./src/theme";
 
 const tabs = [
   { id: "dashboard", label: "Today", icon: Home, screen: DashboardScreen },
@@ -30,11 +31,11 @@ export default function App() {
               return (
                 <TouchableOpacity
                   key={tab.id}
-                  activeOpacity={0.8}
+                  activeOpacity={0.7}
                   onPress={() => setActiveTab(tab.id)}
                   style={[styles.tabItem, isActive && styles.tabItemActive]}
                 >
-                  <Icon size={22} color={isActive ? "#FFFFFF" : "#68857D"} strokeWidth={2.3} />
+                  <Icon size={22} color={isActive ? "#FFFFFF" : "#667085"} strokeWidth={2.3} />
                   <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tab.label}</Text>
                 </TouchableOpacity>
               );
@@ -49,26 +50,25 @@ export default function App() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F4F8F5"
+    backgroundColor: theme.colors.background
   },
   appShell: {
     flex: 1,
-    backgroundColor: "#F4F8F5"
+    alignItems: "center",
+    backgroundColor: theme.colors.background
   },
   tabBar: {
+    width: "92%",
+    maxWidth: theme.layout.maxWidth - 28,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginHorizontal: 14,
+    alignSelf: "center",
     marginBottom: 12,
     padding: 8,
     borderRadius: 24,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#163A33",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 12
+    backgroundColor: theme.colors.card,
+    ...theme.shadow
   },
   tabItem: {
     flex: 1,
@@ -78,13 +78,13 @@ const styles = StyleSheet.create({
     borderRadius: 18
   },
   tabItemActive: {
-    backgroundColor: "#10A37F"
+    backgroundColor: theme.colors.emerald
   },
   tabLabel: {
     marginTop: 4,
     fontSize: 11,
     lineHeight: 14,
-    color: "#68857D",
+    color: "#667085",
     fontWeight: "700"
   },
   tabLabelActive: {

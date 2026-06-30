@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ChefHat, Clock, Flame } from "lucide-react-native";
 import { useAppContext } from "../context/AppContext";
+import { theme } from "../theme";
 
 const recipes = [
   {
@@ -9,42 +10,54 @@ const recipes = [
     calories: 310,
     protein: 34,
     time: "18 min",
-    tags: ["high-protein", "low-carb"]
+    tags: ["high-protein", "low-carb"],
+    image:
+      "https://images.unsplash.com/photo-1543353071-10c8ba85a904?auto=format&fit=crop&w=500&q=80"
   },
   {
     title: "Salmon Quinoa Green Bowl",
     calories: 520,
     protein: 38,
     time: "24 min",
-    tags: ["omega-3", "balanced"]
+    tags: ["omega-3", "balanced"],
+    image:
+      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80"
   },
   {
     title: "Turkey Avocado Rice Plate",
     calories: 610,
     protein: 42,
     time: "22 min",
-    tags: ["high-protein", "meal-prep"]
+    tags: ["high-protein", "meal-prep"],
+    image:
+      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80"
   },
   {
     title: "Greek Yogurt Berry Crunch",
     calories: 290,
     protein: 23,
     time: "7 min",
-    tags: ["breakfast", "high-protein"]
+    tags: ["breakfast", "high-protein"],
+    image:
+      "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=500&q=80"
   },
   {
     title: "Tofu Vegetable Noodle Soup",
     calories: 430,
     protein: 24,
     time: "20 min",
-    tags: ["plant-forward", "comfort"]
+    tags: ["plant-forward", "comfort"],
+    image:
+      "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=500&q=80"
   },
   {
     title: "Egg White Spinach Wrap",
     calories: 360,
     protein: 28,
     time: "12 min",
-    tags: ["light", "breakfast"]
+    tags: ["light", "breakfast"],
+    image:
+      "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=500&q=80"
   }
 ];
 
@@ -59,23 +72,24 @@ export default function RecipesScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.eyebrow}>Smart recommendations</Text>
-          <Text style={styles.title}>Recipes</Text>
+      <View style={styles.inner}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.eyebrow}>Smart recommendations</Text>
+            <Text style={styles.title}>Recipes</Text>
+          </View>
+          <View style={styles.iconBadge}>
+            <ChefHat size={23} color={theme.colors.emerald} />
+          </View>
         </View>
-        <View style={styles.iconBadge}>
-          <ChefHat size={23} color="#10A37F" />
+
+        <View style={styles.budgetPanel}>
+          <Text style={styles.budgetLabel}>Remaining calorie budget</Text>
+          <Text style={styles.budgetNumber}>{remaining}</Text>
+          <Text style={styles.budgetCopy}>Showing meal ideas that fit your day right now.</Text>
         </View>
-      </View>
 
-      <View style={styles.budgetPanel}>
-        <Text style={styles.budgetLabel}>Remaining calorie budget</Text>
-        <Text style={styles.budgetNumber}>{remaining}</Text>
-        <Text style={styles.budgetCopy}>Showing meal ideas that fit your day right now.</Text>
-      </View>
-
-      <View style={styles.grid}>
+        <View style={styles.grid}>
         {visibleRecipes.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyTitle}>No room for a full recipe right now</Text>
@@ -84,31 +98,34 @@ export default function RecipesScreen() {
         ) : (
           visibleRecipes.map((recipe) => (
             <View key={recipe.title} style={styles.recipeCard}>
-              <View style={styles.cardTop}>
-                <View style={styles.recipeIcon}>
-                  <ChefHat size={20} color="#FFFFFF" />
-                </View>
-                <View style={styles.calorieBadge}>
-                  <Flame size={14} color="#E76F51" />
-                  <Text style={styles.calorieBadgeText}>{recipe.calories}</Text>
-                </View>
+              <View style={styles.imageWrap}>
+                <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
               </View>
-              <Text style={styles.recipeTitle}>{recipe.title}</Text>
-              <View style={styles.metaRow}>
-                <Clock size={15} color="#6F877F" />
-                <Text style={styles.metaText}>{recipe.time}</Text>
-                <Text style={styles.metaText}>{recipe.protein}g protein</Text>
-              </View>
-              <View style={styles.tagRow}>
-                {recipe.tags.map((tag) => (
-                  <View key={tag} style={styles.tag}>
-                    <Text style={styles.tagText}>{tag}</Text>
+              <View style={styles.recipeBody}>
+                <View style={styles.cardTop}>
+                  <View style={styles.calorieBadge}>
+                    <Flame size={14} color="#E76F51" />
+                    <Text style={styles.calorieBadgeText}>{recipe.calories}</Text>
                   </View>
-                ))}
+                </View>
+                <Text style={styles.recipeTitle}>{recipe.title}</Text>
+                <View style={styles.metaRow}>
+                  <Clock size={15} color={theme.colors.muted} />
+                  <Text style={styles.metaText}>{recipe.time}</Text>
+                  <Text style={styles.metaText}>{recipe.protein}g protein</Text>
+                </View>
+                <View style={styles.tagRow}>
+                  {recipe.tags.map((tag) => (
+                    <View key={tag} style={styles.tag}>
+                      <Text style={styles.tagText}>{tag}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
             </View>
           ))
         )}
+        </View>
       </View>
     </ScrollView>
   );
@@ -117,12 +134,18 @@ export default function RecipesScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#F4F8F5"
+    width: "100%",
+    backgroundColor: theme.colors.background
   },
   content: {
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 104
+    paddingBottom: theme.layout.bottomPadding,
+    alignItems: "center"
+  },
+  inner: {
+    width: "100%",
+    maxWidth: theme.layout.maxWidth
   },
   header: {
     flexDirection: "row",
@@ -130,7 +153,7 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   eyebrow: {
-    color: "#10A37F",
+    color: theme.colors.emerald,
     fontSize: 13,
     fontWeight: "900",
     textTransform: "uppercase"
@@ -139,7 +162,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 34,
     lineHeight: 40,
-    color: "#113A33",
+    color: theme.colors.ink,
     fontWeight: "900"
   },
   iconBadge: {
@@ -147,14 +170,15 @@ const styles = StyleSheet.create({
     height: 48,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 8,
-    backgroundColor: "#E4F6EF"
+    borderRadius: 24,
+    backgroundColor: "rgba(4, 120, 87, 0.1)"
   },
   budgetPanel: {
     marginTop: 20,
     padding: 20,
-    borderRadius: 8,
-    backgroundColor: "#103B34"
+    borderRadius: 28,
+    backgroundColor: "#0F2F2B",
+    ...theme.shadow
   },
   budgetLabel: {
     color: "#B8D8CF",
@@ -181,27 +205,33 @@ const styles = StyleSheet.create({
     gap: 12
   },
   recipeCard: {
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#143D36",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 18,
-    elevation: 5
+    minHeight: 154,
+    flexDirection: "row",
+    gap: 14,
+    padding: 12,
+    borderRadius: 24,
+    backgroundColor: theme.colors.card,
+    ...theme.shadow
+  },
+  imageWrap: {
+    width: 126,
+    borderRadius: 20,
+    overflow: "hidden",
+    backgroundColor: "#ECFDF5"
+  },
+  recipeImage: {
+    width: "100%",
+    height: "100%"
+  },
+  recipeBody: {
+    flex: 1,
+    minHeight: 130,
+    justifyContent: "center"
   },
   cardTop: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between"
-  },
-  recipeIcon: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 8,
-    backgroundColor: "#10A37F"
+    justifyContent: "flex-start"
   },
   calorieBadge: {
     flexDirection: "row",
@@ -209,7 +239,7 @@ const styles = StyleSheet.create({
     gap: 5,
     paddingHorizontal: 10,
     paddingVertical: 7,
-    borderRadius: 8,
+    borderRadius: 999,
     backgroundColor: "#FFF0EA"
   },
   calorieBadgeText: {
@@ -218,10 +248,10 @@ const styles = StyleSheet.create({
     fontWeight: "900"
   },
   recipeTitle: {
-    marginTop: 14,
+    marginTop: 10,
     fontSize: 18,
     lineHeight: 24,
-    color: "#133D36",
+    color: theme.colors.ink,
     fontWeight: "900"
   },
   metaRow: {
@@ -231,7 +261,7 @@ const styles = StyleSheet.create({
     gap: 8
   },
   metaText: {
-    color: "#6F877F",
+    color: theme.colors.muted,
     fontSize: 13,
     fontWeight: "800"
   },
@@ -244,27 +274,28 @@ const styles = StyleSheet.create({
   tag: {
     paddingHorizontal: 9,
     paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: "#EAF5F0"
+    borderRadius: 999,
+    backgroundColor: "#ECFDF5"
   },
   tagText: {
-    color: "#20735F",
+    color: theme.colors.emerald,
     fontSize: 11,
     fontWeight: "900"
   },
   emptyState: {
     padding: 18,
-    borderRadius: 8,
-    backgroundColor: "#FFFFFF"
+    borderRadius: 24,
+    backgroundColor: theme.colors.card,
+    ...theme.shadow
   },
   emptyTitle: {
-    color: "#143D36",
+    color: theme.colors.ink,
     fontSize: 17,
     fontWeight: "900"
   },
   emptyCopy: {
     marginTop: 7,
-    color: "#657F76",
+    color: theme.colors.muted,
     fontSize: 14,
     lineHeight: 20,
     fontWeight: "700"

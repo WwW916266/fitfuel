@@ -1,9 +1,10 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
+import { theme } from "../theme";
 
 const size = 220;
-const strokeWidth = 18;
+const strokeWidth = 12;
 const radius = (size - strokeWidth) / 2;
 const circumference = 2 * Math.PI * radius;
 
@@ -19,7 +20,7 @@ export default function CalorieRing({ currentIntake, dailyGoal }) {
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#DDEBE5"
+          stroke="rgba(4, 120, 87, 0.12)"
           strokeWidth={strokeWidth}
           fill="transparent"
         />
@@ -27,7 +28,7 @@ export default function CalorieRing({ currentIntake, dailyGoal }) {
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={currentIntake > dailyGoal ? "#E76F51" : "#10A37F"}
+          stroke={currentIntake > dailyGoal ? theme.colors.coral : theme.colors.emerald}
           strokeWidth={strokeWidth}
           fill="transparent"
           strokeLinecap="round"
@@ -38,9 +39,9 @@ export default function CalorieRing({ currentIntake, dailyGoal }) {
         />
       </Svg>
       <View style={styles.centerText}>
-        <Text style={styles.kicker}>Remaining</Text>
         <Text style={styles.remaining}>{remaining}</Text>
-        <Text style={styles.subcopy}>of {dailyGoal} kcal</Text>
+        <Text style={styles.kicker}>Kcal remaining</Text>
+        <Text style={styles.subcopy}>Goal {dailyGoal}</Text>
       </View>
     </View>
   );
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 18,
-    marginBottom: 22
+    marginBottom: 18
   },
   centerText: {
     position: "absolute",
@@ -62,22 +63,23 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   kicker: {
-    fontSize: 13,
-    color: "#668078",
-    fontWeight: "800",
+    marginTop: 6,
+    fontSize: 11,
+    color: theme.colors.muted,
+    fontWeight: "900",
+    letterSpacing: 1.5,
     textTransform: "uppercase"
   },
   remaining: {
-    marginTop: 4,
-    fontSize: 48,
-    lineHeight: 54,
-    color: "#123C35",
+    fontSize: 54,
+    lineHeight: 58,
+    color: theme.colors.ink,
     fontWeight: "900"
   },
   subcopy: {
-    marginTop: 2,
-    fontSize: 15,
-    color: "#668078",
+    marginTop: 6,
+    fontSize: 13,
+    color: theme.colors.muted,
     fontWeight: "700"
   }
 });

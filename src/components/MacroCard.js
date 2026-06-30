@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { theme } from "../theme";
 
 export default function MacroCard({ label, value, goal, color }) {
   const progress = Math.min(1, Math.max(0, value / Math.max(goal, 1)));
@@ -22,14 +23,10 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     minWidth: "30%",
-    padding: 14,
-    borderRadius: 8,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#184038",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 5
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: theme.colors.card,
+    ...theme.shadow
   },
   row: {
     flexDirection: "row",
@@ -38,29 +35,29 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    color: "#6D827B",
+    color: theme.colors.muted,
     fontWeight: "800"
   },
   value: {
     fontSize: 17,
-    color: "#143E36",
+    color: theme.colors.ink,
     fontWeight: "900"
   },
   track: {
-    height: 8,
+    height: 6,
     marginTop: 14,
-    borderRadius: 5,
+    borderRadius: 999,
     overflow: "hidden",
-    backgroundColor: "#E7F0EC"
+    backgroundColor: "rgba(15, 23, 42, 0.06)"
   },
   fill: {
     height: "100%",
-    borderRadius: 5
+    borderRadius: 999
   },
   goal: {
     marginTop: 9,
     fontSize: 11,
-    color: "#8BA098",
+    color: "#98A2B3",
     fontWeight: "700"
   }
 });

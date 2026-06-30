@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { Check, Settings } from "lucide-react-native";
+import { Check, ChevronRight, Settings } from "lucide-react-native";
 import { useAppContext } from "../context/AppContext";
+import { theme } from "../theme";
 
 export default function SettingsScreen() {
   const { dailyGoal, setDailyGoal } = useAppContext();
   const [goalInput, setGoalInput] = useState(String(dailyGoal));
   const [saved, setSaved] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const saveGoal = () => {
     const nextGoal = Math.max(800, Math.min(6000, Number(goalInput) || dailyGoal));
@@ -18,39 +20,44 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.eyebrow}>Personal plan</Text>
-          <Text style={styles.title}>Settings</Text>
+      <View style={styles.inner}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.eyebrow}>Personal plan</Text>
+            <Text style={styles.title}>Settings</Text>
+          </View>
+          <View style={styles.iconBadge}>
+            <Settings size={23} color={theme.colors.emerald} />
+          </View>
         </View>
-        <View style={styles.iconBadge}>
-          <Settings size={23} color="#10A37F" />
-        </View>
-      </View>
 
-      <View style={styles.formPanel}>
-        <Text style={styles.label}>Daily calorie limit</Text>
-        <Text style={styles.copy}>This target updates the dashboard ring and recipe budget immediately.</Text>
-        <View style={styles.inputWrap}>
-          <TextInput
-            value={goalInput}
-            onChangeText={(value) => setGoalInput(value.replace(/[^0-9]/g, ""))}
-            keyboardType="number-pad"
-            style={styles.input}
-            maxLength={4}
-          />
-          <Text style={styles.unit}>kcal</Text>
+        <View style={styles.formPanel}>
+          <Text style={styles.label}>Daily calorie limit</Text>
+          <Text style={styles.copy}>This target updates the dashboard ring and recipe budget immediately.</Text>
+          <View style={[styles.inputWrap, isFocused && styles.inputWrapFocused]}>
+            <TextInput
+              value={goalInput}
+              onChangeText={(value) => setGoalInput(value.replace(/[^0-9]/g, ""))}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              keyboardType="number-pad"
+              style={styles.input}
+              maxLength={4}
+            />
+            <Text style={styles.unit}>kcal</Text>
+          </View>
+          <TouchableOpacity activeOpacity={0.7} style={styles.saveButton} onPress={saveGoal}>
+            <Check size={20} color="#FFFFFF" />
+            <Text style={styles.saveText}>{saved ? "Saved" : "Update Goal"}</Text>
+            <ChevronRight size={20} color="#FFFFFF" />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity activeOpacity={0.85} style={styles.saveButton} onPress={saveGoal}>
-          <Check size={20} color="#FFFFFF" />
-          <Text style={styles.saveText}>{saved ? "Saved" : "Update Goal"}</Text>
-        </TouchableOpacity>
-      </View>
 
-      <View style={styles.infoPanel}>
-        <Text style={styles.infoTitle}>Current target</Text>
-        <Text style={styles.infoNumber}>{dailyGoal} kcal</Text>
-        <Text style={styles.infoCopy}>A steady, realistic goal is easier to follow than a perfect one.</Text>
+        <View style={styles.infoPanel}>
+          <Text style={styles.infoTitle}>Current target</Text>
+          <Text style={styles.infoNumber}>{dailyGoal} kcal</Text>
+          <Text style={styles.infoCopy}>A steady, realistic goal is easier to follow than a perfect one.</Text>
+        </View>
       </View>
     </ScrollView>
   );
@@ -59,12 +66,18 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#F4F8F5"
+    width: "100%",
+    backgroundColor: theme.colors.background
   },
   content: {
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 104
+    paddingBottom: theme.layout.bottomPadding,
+    alignItems: "center"
+  },
+  inner: {
+    width: "100%",
+    maxWidth: theme.layout.maxWidth
   },
   header: {
     flexDirection: "row",
@@ -72,7 +85,7 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   eyebrow: {
-    color: "#10A37F",
+    color: theme.colors.emerald,
     fontSize: 13,
     fontWeight: "900",
     textTransform: "uppercase"
@@ -81,7 +94,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 34,
     lineHeight: 40,
-    color: "#113A33",
+    color: theme.colors.ink,
     fontWeight: "900"
   },
   iconBadge: {
@@ -89,28 +102,24 @@ const styles = StyleSheet.create({
     height: 48,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 8,
-    backgroundColor: "#E4F6EF"
+    borderRadius: 24,
+    backgroundColor: "rgba(4, 120, 87, 0.1)"
   },
   formPanel: {
     marginTop: 24,
     padding: 18,
-    borderRadius: 8,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#153F37",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 6
+    borderRadius: 28,
+    backgroundColor: theme.colors.card,
+    ...theme.shadow
   },
   label: {
     fontSize: 18,
-    color: "#143D36",
+    color: theme.colors.ink,
     fontWeight: "900"
   },
   copy: {
     marginTop: 7,
-    color: "#657D75",
+    color: theme.colors.muted,
     fontSize: 14,
     lineHeight: 20,
     fontWeight: "700"
@@ -120,20 +129,23 @@ const styles = StyleSheet.create({
     minHeight: 66,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: "#F1F7F4",
+    paddingHorizontal: 20,
+    borderRadius: 999,
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#DCEAE4"
+    borderColor: "rgba(15, 23, 42, 0.08)"
+  },
+  inputWrapFocused: {
+    borderColor: theme.colors.emerald
   },
   input: {
     flex: 1,
-    color: "#123C35",
+    color: theme.colors.ink,
     fontSize: 28,
     fontWeight: "900"
   },
   unit: {
-    color: "#6D867E",
+    color: theme.colors.muted,
     fontSize: 15,
     fontWeight: "900"
   },
@@ -144,8 +156,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    borderRadius: 8,
-    backgroundColor: "#10A37F"
+    borderRadius: 999,
+    backgroundColor: theme.colors.emerald,
+    ...theme.shadow
   },
   saveText: {
     color: "#FFFFFF",
@@ -155,25 +168,26 @@ const styles = StyleSheet.create({
   infoPanel: {
     marginTop: 16,
     padding: 18,
-    borderRadius: 8,
-    backgroundColor: "#EAF5F0"
+    borderRadius: 24,
+    backgroundColor: theme.colors.card,
+    ...theme.shadow
   },
   infoTitle: {
-    color: "#57746B",
+    color: theme.colors.muted,
     fontSize: 13,
     fontWeight: "900",
     textTransform: "uppercase"
   },
   infoNumber: {
     marginTop: 8,
-    color: "#123C35",
+    color: theme.colors.ink,
     fontSize: 34,
     lineHeight: 40,
     fontWeight: "900"
   },
   infoCopy: {
     marginTop: 4,
-    color: "#607B72",
+    color: theme.colors.muted,
     fontSize: 14,
     lineHeight: 20,
     fontWeight: "700"
